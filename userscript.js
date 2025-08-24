@@ -85,8 +85,10 @@ function run(container) {
             frame.dataset.playlist = oldDataset.playlist || oldDataset.videoId;
             if (oldDataset.userscriptModified === "1") {
                 const params = new URLSearchParams(window.location.search);
-                params.set("v", oldDataset.videoId);
-                window.history.pushState({}, "", window.location.pathname + "?" + params.toString());
+                if (params.get("list") && params.get("list") === oldDataset.listId) {
+                    params.set("v", oldDataset.videoId);
+                    window.history.pushState({}, "", window.location.pathname + "?" + params.toString());
+                }
             }
             oldDataset = {};
             updateSrc();
@@ -122,6 +124,8 @@ function run(container) {
     } else {
         if (frame.dataset.playlist !== frame.dataset.videoId) {
             oldDataset.userscriptModified = "1";
+            const params = new URLSearchParams(window.location.search);
+            oldDataset.listId = params.get("list");
         }
     }
 }
