@@ -4,7 +4,7 @@ Play YouTube videos ad-free using an iframe embed served from localhost
 
 ## Installation
 
-1. Install `script.user.js` with a userscript manager or from [Greasy Fork](https://greasyfork.org/en/scripts/468658-yt-localhost-iframe).
+1. Install `script.user.js` with a userscript manager or from [Greasy Fork](https://greasyfork.org/en/scripts/547141-youtube-localhost-ad-free-player).
 2. Serve `index.html` on `localhost:8823` using a local web server, e.g. run `python -m http.server 8823` in the project directory.
 
 **Note**: The server must be running whenever you use YouTube with this script enabled.
