@@ -34,9 +34,13 @@ window.addEventListener("message", (ev) => {
                 window.history.pushState({}, "", window.location.pathname + "?" + params.toString());
             }
             const title = document.querySelector("h1.ytd-watch-metadata").children[0];
-            title.textContent = data?.info?.videoData?.title || title.textContent;
+            if (title) {
+                title.textContent = data?.info?.videoData?.title || title.textContent;
+            }
             const author = document.querySelector("#text.ytd-channel-name").children[0];
-            author.textContent = data?.info?.videoData?.author || author.textContent;
+            if (author) {
+                author.textContent = data?.info?.videoData?.author || author.textContent;
+            }
         }
     }
 });
@@ -69,6 +73,20 @@ function run(container) {
             .replace("%start", resumeTime)
         );
     }
+    function selectList() {
+        [...document.querySelector("#items.playlist-items").children].forEach((el) => {
+            try {
+                if (new URLSearchParams(el.getElementsByTagName("a")[0].search).get("v") === frame.dataset.videoId) {
+                    el.setAttribute("selected", "true");
+                } else {
+                    el.removeAttribute("selected");
+                }
+            } catch (e) {
+                // Error handling if needed
+            }
+        });
+    }
+
     if (!frame) {
         frame = document.createElement("iframe");
         container.appendChild(frame);
@@ -88,6 +106,7 @@ function run(container) {
                 if (params.get("list") && params.get("list") === oldDataset.listId) {
                     params.set("v", oldDataset.videoId);
                     window.history.pushState({}, "", window.location.pathname + "?" + params.toString());
+                    selectList();
                 }
             }
             oldDataset = {};
@@ -102,8 +121,9 @@ function run(container) {
             return;
         } else if (videoId !== frame.dataset.videoId) {
             if (oldDataset.videoId) {
-                if (params.get("userscript_modified") === "1") {
+                if (params.get("userscript_modified") === "1" && params.get("list")) {
                     frame.dataset.videoId = oldDataset.videoId;
+                    selectList();
                     return;
                 } else {
                     window.location.reload();
@@ -114,7 +134,13 @@ function run(container) {
             const playlistEl = document.querySelector("#items.playlist-items");
             if (playlistEl && playlistEl.children.length > 0) {
                 const playlistIds = [];
-                [...playlistEl.children].forEach((el) => playlistIds.push(new URLSearchParams(el.getElementsByTagName("a")[0].search).get("v")));
+                [...playlistEl.children].forEach((el) => {
+                    try {
+                        playlistIds.push(new URLSearchParams(el.getElementsByTagName("a")[0].search).get("v"));
+                    } catch (e) {
+                        // Error handling if needed
+                    }
+                });
                 frame.dataset.playlist = playlistIds.join(",");
             } else {
                 frame.dataset.playlist = videoId;
