@@ -10,7 +10,7 @@
 
 const frameId = "userscriptLocalhostFrame";
 const embedURL = "https://www.youtube-nocookie.com/embed/%v?playlist=%p&autoplay=1&start=%start&enablejsapi=1";
-const frameSrc = "http://localhost:8001?url=";
+const frameSrc = "http://localhost:8823?url=";
 const runFreq = 200;
 
 let resumeTime = 0, oldDataset = {};
@@ -33,13 +33,15 @@ window.addEventListener("message", (ev) => {
                 params.set("userscript_modified", "1");
                 window.history.pushState({}, "", window.location.pathname + "?" + params.toString());
             }
-            const title = document.querySelector("h1.ytd-watch-metadata").children[0];
-            if (title) {
-                title.textContent = data?.info?.videoData?.title || title.textContent;
-            }
-            const author = document.querySelector("#text.ytd-channel-name").children[0];
-            if (author) {
-                author.textContent = data?.info?.videoData?.author || author.textContent;
+            if (playlist.length > 1) {
+                const title = document.querySelector("h1.ytd-watch-metadata").children[0];
+                if (title) {
+                    title.textContent = data?.info?.videoData?.title || title.textContent;
+                }
+                const author = document.querySelector("#text.ytd-channel-name").children[0];
+                if (author) {
+                    author.textContent = data?.info?.videoData?.author || author.textContent;
+                }
             }
         }
     }
