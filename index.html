@@ -25,7 +25,12 @@
 <body>
     <iframe id="frame" frameborder="0" allow="autoplay; fullscreen;" allowfullscreen enablejsapi="1"></iframe>
     <script>
-        document.getElementById("frame").src = decodeURIComponent(new URLSearchParams(window.location.search).get("url")) || "https://example.com";
+        const frame = document.getElementById("frame");
+        frame.src = decodeURIComponent(new URLSearchParams(window.location.search).get("url")) || "https://example.com";
+        /* frame.onload = () => {
+            frame.src += "";
+            frame.onload = null;
+        }; */
         const tag = document.createElement("script");
         tag.src = "https://www.youtube.com/iframe_api";
         const firstScriptTag = document.getElementsByTagName("script")[0];

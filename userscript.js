@@ -25,7 +25,18 @@ window.addEventListener("message", (ev) => {
         const playlist = data?.info?.playlist;
         if (playlist && playlist.length > 0) {
             oldDataset.playlist = playlist.join(",");
+            const oldVideoId = oldDataset.videoId;
             oldDataset.videoId = playlist[data?.info?.playlistIndex] || globalFrame.dataset.videoId;
+            if (oldVideoId && oldVideoId !== oldDataset.videoId) {
+                const params = new URLSearchParams(window.location.search);
+                params.set("v", oldDataset.videoId);
+                params.set("userscript_modified", "1");
+                window.history.pushState({}, "", window.location.pathname + "?" + params.toString());
+            }
+            const title = document.querySelector("h1.ytd-watch-metadata").children[0];
+            title.textContent = data?.info?.videoData?.title || title.textContent;
+            const author = document.querySelector("#text.ytd-channel-name").children[0];
+            author.textContent = data?.info?.videoData?.author || author.textContent;
         }
     }
 });
@@ -72,6 +83,11 @@ function run(container) {
         if (oldDataset.videoId) {
             frame.dataset.videoId = oldDataset.videoId;
             frame.dataset.playlist = oldDataset.playlist || oldDataset.videoId;
+            if (oldDataset.userscriptModified === "1") {
+                const params = new URLSearchParams(window.location.search);
+                params.set("v", oldDataset.videoId);
+                window.history.pushState({}, "", window.location.pathname + "?" + params.toString());
+            }
             oldDataset = {};
             updateSrc();
         }
@@ -84,22 +100,28 @@ function run(container) {
             return;
         } else if (videoId !== frame.dataset.videoId) {
             if (oldDataset.videoId) {
-                window.location.reload();
+                if (params.get("userscript_modified") === "1") {
+                    frame.dataset.videoId = oldDataset.videoId;
+                    return;
+                } else {
+                    window.location.reload();
+                }
             }
             resumeTime = 0; // Switching videos, reset resume time
             frame.dataset.videoId = videoId;
             const playlistEl = document.querySelector("#items.playlist-items");
             if (playlistEl && playlistEl.children.length > 0) {
-                console.log(playlistEl, window.location.search);
                 const playlistIds = [];
                 [...playlistEl.children].forEach((el) => playlistIds.push(new URLSearchParams(el.getElementsByTagName("a")[0].search).get("v")));
                 frame.dataset.playlist = playlistIds.join(",");
             } else {
-                console.log("Noplaylist")
                 frame.dataset.playlist = videoId;
             }
-            console.log(frame.dataset);
             updateSrc();
+        }
+    } else {
+        if (frame.dataset.playlist !== frame.dataset.videoId) {
+            oldDataset.userscriptModified = "1";
         }
     }
 }
