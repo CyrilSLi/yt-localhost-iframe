@@ -1,10 +1,10 @@
 // ==UserScript==
-// @name        YouTube Localhost Ad Blocker
+// @name        YouTube Localhost Ad-Free Player
 // @namespace   Violentmonkey Scripts
 // @match       *://www.youtube.com/*
 // @version     1.0
 // @author      CyrilSLi
-// @description Remove YouTube ads by using a localhost embed player
+// @description Play YouTube videos ad-free using an iframe embed served from localhost
 // @license     MIT
 // ==/UserScript==
 
