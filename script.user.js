@@ -2,7 +2,7 @@
 // @name        YouTube Localhost Ad-Free Player
 // @namespace   Violentmonkey Scripts
 // @match       *://www.youtube.com/*
-// @version     1.0
+// @version     1.1
 // @author      CyrilSLi
 // @description Play YouTube videos ad-free using an iframe embed served from localhost
 // @license     MIT
@@ -13,7 +13,9 @@ const embedURL = "https://www.youtube-nocookie.com/embed/%v?playlist=%p&autoplay
 const frameSrc = "http://localhost:8823?url=";
 const runFreq = 200;
 
-let resumeTime = 0, oldDataset = {};
+const urlParams = new URLSearchParams(window.location.search);
+let firstRunResume = parseInt((urlParams.get("t") || urlParams.get("start"))?.replace("s", "")) || 0;
+let resumeTime = firstRunResume, oldDataset = {};
 
 window.addEventListener("message", (ev) => {
     if (!ev.data) {
@@ -131,7 +133,7 @@ function run(container) {
                     window.location.reload();
                 }
             }
-            resumeTime = 0; // Switching videos, reset resume time
+            resumeTime = firstRunResume; // Switching videos, reset resume time
             frame.dataset.videoId = videoId;
             const playlistEl = document.querySelector("#items.playlist-items");
             if (playlistEl && playlistEl.children.length > 0) {
@@ -156,6 +158,21 @@ function run(container) {
             oldDataset.listId = params.get("list");
         }
     }
+
+    document.querySelectorAll("ytd-comment-thread-renderer a.yt-core-attributed-string__link:not([data-iframe-player])").forEach((el) => {
+        const linkParams = new URLSearchParams(new URL(el.href, window.location).search);
+        if (linkParams.get("v") === frame.dataset.videoId) {
+            const timestamp = parseInt(linkParams.get("t")?.replace("s", ""));
+            if (timestamp) {
+                el.addEventListener("click", (ev) => {
+                    resumeTime = timestamp;
+                    updateSrc();
+                });
+            }
+        }
+        el.dataset.iframePlayer = "true";
+    });
+    firstRunResume = 0;
 }
 
 var lastRan = 0;
