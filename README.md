@@ -11,6 +11,8 @@ Play YouTube videos ad-free using an iframe embed served from localhost
 
 **Note**: The server must be running whenever you use YouTube with this script enabled.
 
+For Chromium-based browsers, set the flag `local-network-access-check` to Disabled as otherwise the browser will not allow a local iframe inside public sites including YouTube.
+
 ## Usage
 
 This script is designed to be minimally invasive, overlaying the localhost iframe on top of the original player.
