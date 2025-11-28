@@ -6,8 +6,10 @@ Play YouTube videos ad-free using an iframe embed served from localhost
 
 ## Installation
 
-1. Install [script.user.js](https://github.com/CyrilSLi/yt-localhost-iframe/blob/main/script.user.js) with a userscript manager or from Greasy Fork.
-2. Serve [index.html](https://github.com/CyrilSLi/yt-localhost-iframe/blob/main/index.html) on `localhost:8823` using a local web server, e.g. run `python -m http.server 8823` in the project directory after cloning the repository.
+1. Install [script.user.js](https://github.com/CyrilSLi/yt-localhost-iframe/blob/main/script.user.js) with a userscript manager or from Greasy Fork
+2. Serve [index.html](https://github.com/CyrilSLi/yt-localhost-iframe/blob/main/index.html) on `localhost:8823` using a local web server, some options are as follows:
+- run `python -m http.server 8823` in the project directory after cloning the repository
+- run the convenience script [yt-iframe.py](https://github.com/CyrilSLi/yt-localhost-iframe/blob/main/yt-iframe.py) (ensure the `setproctitle` Python package is installed), this will start a process with the name `yt-iframe` so it can be easily found and killed if needed
 
 **Note**: The server must be running whenever you use YouTube with this script enabled.
 
