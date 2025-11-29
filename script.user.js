@@ -2,7 +2,7 @@
 // @name        YouTube Localhost Ad-Free Player
 // @namespace   Violentmonkey Scripts
 // @match       *://www.youtube.com/*
-// @version     1.2
+// @version     1.3
 // @author      CyrilSLi
 // @description Play YouTube videos ad-free using an iframe embed served from localhost
 // @license     MIT
@@ -11,11 +11,13 @@
 const frameId = "userscriptLocalhostFrame";
 const embedURL = "https://www.youtube-nocookie.com/embed/%v?playlist=%p&autoplay=1&start=%start&enablejsapi=1";
 const frameSrc = "http://localhost:8823?url=";
+const containerIds = ["#player-container-inner", "#full-bleed-container", ".ytdMiniplayerPlayerContainerHost"];
 const runFreq = 200;
 
 const urlParams = new URLSearchParams(window.location.search);
 let firstRunResume = parseInt((urlParams.get("t") || urlParams.get("start"))?.replace("s", "")) || 0;
 let resumeTime = firstRunResume, oldDataset = {};
+let enabled = true;
 
 window.addEventListener("message", (ev) => {
     if (!ev.data) {
@@ -49,9 +51,36 @@ window.addEventListener("message", (ev) => {
     }
 });
 
+const onOffBtn = document.createElement("button");
+onOffBtn.id = "userscriptOnOffBtn";
+onOffBtn.classList = "yt-spec-button-shape-next yt-spec-button-shape-next--tonal yt-spec-button-shape-next--mono yt-spec-button-shape-next--size-m";
+onOffBtn.style.cssText = "margin: 0px 8px; min-width: min-content; max-width: min-content;";
+onOffBtn.textContent = "yt-iframe ON";
+
 function run(container) {
     const visible = container.offsetHeight > 0;
     let frame;
+
+    if (!document.getElementById("userscriptOnOffBtn")) {
+        const ownerMetadata = document.querySelector("div#owner.ytd-watch-metadata");
+        ownerMetadata.style.marginRight = "0px";
+        ownerMetadata.appendChild(onOffBtn.cloneNode(true));
+        document.getElementById("userscriptOnOffBtn").addEventListener("click", () => {
+            enabled = !enabled;
+            document.getElementById("userscriptOnOffBtn").textContent = enabled ? "yt-iframe ON" : "yt-iframe OFF";
+            if (!enabled) {
+                [...document.getElementsByClassName(frameId)].forEach((el) => el.remove());
+                containerIds.forEach((id) => {
+                    const container = document.querySelector(id);
+                    if (container) {
+                        [...container.children].forEach((el) => {
+                            el.style.visibility = "";
+                        })
+                    }
+                });
+            }
+        });
+    }
 
     [...container.children].forEach((el) => {
         if (el.className === frameId) {
@@ -192,7 +221,7 @@ function run(container) {
 
 var lastRan = 0;
 const observer = new MutationObserver(() => {
-    if (location.href.includes("/shorts/")) {
+    if (!enabled || location.href.includes("/shorts/")) {
         return;
     }
     document.getElementsByClassName("html5-main-video")[0]?.pause();
@@ -200,7 +229,7 @@ const observer = new MutationObserver(() => {
         return;
     }
     lastRan = Date.now();
-    ["#player-container-inner", "#full-bleed-container", ".ytdMiniplayerPlayerContainerHost"].forEach((id) => {
+    containerIds.forEach((id) => {
         const container = document.querySelector(id);
         if (container) {
             run(container);
