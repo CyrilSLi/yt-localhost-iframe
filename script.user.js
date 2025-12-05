@@ -2,7 +2,7 @@
 // @name        YouTube Localhost Ad-Free Player
 // @namespace   Violentmonkey Scripts
 // @match       *://www.youtube.com/*
-// @version     1.3
+// @version     1.3.1
 // @author      CyrilSLi
 // @description Play YouTube videos ad-free using an iframe embed served from localhost
 // @license     MIT
@@ -199,6 +199,7 @@ function run(container) {
             closeBtn.appendChild(path1);
             closeBtn.appendChild(path2);
             closeBtn.addEventListener("click", () => document.getElementsByClassName("ytp-miniplayer-close-button")[0].click());
+            infoBar.getElementsByClassName("ytdMiniplayerInfoBarExpand")[0].remove();
             infoBar.appendChild(closeBtn);
         }
     }
