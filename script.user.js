@@ -2,7 +2,7 @@
 // @name        YouTube Localhost Ad-Free Player
 // @namespace   Violentmonkey Scripts
 // @match       *://www.youtube.com/*
-// @version     1.4.0
+// @version     1.4.1
 // @author      CyrilSLi
 // @description Play YouTube videos ad-free using an iframe embed served from localhost
 // @license     MIT
@@ -17,7 +17,7 @@ const embedURL = "https://www.youtube-nocookie.com/embed/%v?playlist=%p&autoplay
 const frameSrc = "http://localhost:8823?url=%url&paused=%paused";
 const containerIds = ["#player-container-inner", "#full-bleed-container", ".ytdMiniplayerPlayerContainerHost"];
 const runFreq = 200;
-const htmlVersion = "// @version 1.4.0".replace("// @version ", "").trim(); // Automatically replaced during build
+const htmlVersion = "// @version 1.4.1".replace("// @version ", "").trim(); // Automatically replaced during build
 
 const urlParams = new URLSearchParams(window.location.search);
 let firstRunResume = parseInt((urlParams.get("t") || urlParams.get("start"))?.replace("s", "")) || 0;
@@ -36,7 +36,8 @@ window.addEventListener("message", (ev) => {
         alert([
             "YouTube Localhost Ad-Free Player: Version mismatch between userscript and localhost server",
             `(userscript: ${htmlVersion}, server: ${data.userscriptHtmlVersion})`,
-            "Please download the latest index.html file from https://github.com/CyrilSLi/yt-localhost-iframe",
+            "Please update the userscript and server from",
+            "https://github.com/CyrilSLi/yt-localhost-iframe"
         ].join("\n"));
         versionMismatchAlerted = true;
         open("https://github.com/CyrilSLi/yt-localhost-iframe");
@@ -130,15 +131,19 @@ function run(container) {
         )).replace("%paused", paused ? "1" : "0");
     }
     function selectList() {
-        [...document.querySelector("#items.playlist-items").children].forEach((el) => {
-            try {
-                if (new URLSearchParams(el.getElementsByTagName("a")[0].search).get("v") === frame.dataset.videoId) {
-                    el.setAttribute("selected", "true");
-                } else {
-                    el.removeAttribute("selected");
-                }
-            } catch (e) {
-                // Error handling if needed
+        const playlistEl = document.querySelector("#items.playlist-items");
+        playlistEl.querySelectorAll("span#index, span#play-icon").forEach((el) => el.remove());
+        [...playlistEl.children].forEach((el) => {
+            if (new URLSearchParams(el.getElementsByTagName("a")[0].search).get("v") === frame.dataset.videoId) {
+                el.setAttribute("selected", "true");
+                const index = document.createElement("span");
+                index.textContent = "▶";
+                index.id = "index";
+                index.classList = "style-scope ytd-playlist-panel-video-renderer";
+                index.style.display = "flex";
+                el.querySelector("div#index-container").appendChild(index);
+            } else {
+                el.removeAttribute("selected");
             }
         });
     }
