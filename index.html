@@ -25,6 +25,10 @@
 <body>
     <iframe id="frame" frameborder="0" allow="autoplay; fullscreen;" allowfullscreen enablejsapi="1"></iframe>
     <script>
+        const htmlVersion = "// @version 1.4.0".replace("// @version ", "").trim(); // Automatically replaced during build
+        function postMessage(data) {
+            window.parent.postMessage({ ...data, userscriptHtmlVersion: htmlVersion }, "*");
+        }
         const params = new URLSearchParams(window.location.search);
         const frame = document.getElementById("frame");
         if (params.get("paused") === "1") {
@@ -40,10 +44,10 @@
                 events: {
                     "onStateChange": (ev) => {
                         if (ev.data == YT.PlayerState.PLAYING) {
-                            window.parent.postMessage({ event: "userscriptPlayEvent" }, "*");
+                            postMessage({ event: "userscriptPlayEvent" });
                         }
                         if (ev.data == YT.PlayerState.PAUSED) {
-                            window.parent.postMessage({event: "userscriptPauseEvent" }, "*");
+                            postMessage({event: "userscriptPauseEvent" });
                         }
                     }
                 }
@@ -51,7 +55,7 @@
         }
         window.addEventListener("message", (ev) => {
             if (ev.data) {
-                window.parent.postMessage((typeof ev.data === "string" || ev.data instanceof String) ? JSON.parse(ev.data) : ev.data, "*");
+                postMessage((typeof ev.data === "string" || ev.data instanceof String) ? JSON.parse(ev.data) : ev.data);
             }
         });
     </script>

@@ -2,29 +2,45 @@
 // @name        YouTube Localhost Ad-Free Player
 // @namespace   Violentmonkey Scripts
 // @match       *://www.youtube.com/*
-// @version     1.3.1
+// @version     1.4.0
 // @author      CyrilSLi
 // @description Play YouTube videos ad-free using an iframe embed served from localhost
 // @license     MIT
 // ==/UserScript==
+
+if (window.top !== window.self) {
+    return;
+}
 
 const frameId = "userscriptLocalhostFrame";
 const embedURL = "https://www.youtube-nocookie.com/embed/%v?playlist=%p&autoplay=1&start=%start&enablejsapi=1";
 const frameSrc = "http://localhost:8823?url=%url&paused=%paused";
 const containerIds = ["#player-container-inner", "#full-bleed-container", ".ytdMiniplayerPlayerContainerHost"];
 const runFreq = 200;
+const htmlVersion = "// @version 1.4.0".replace("// @version ", "").trim(); // Automatically replaced during build
 
 const urlParams = new URLSearchParams(window.location.search);
 let firstRunResume = parseInt((urlParams.get("t") || urlParams.get("start"))?.replace("s", "")) || 0;
-let resumeTime = firstRunResume, oldDataset = {};
+let resumeTime = firstRunResume
+let oldDataset = {};
 let enabled = true;
 let paused = false;
+let versionMismatchAlerted = false;
 
 window.addEventListener("message", (ev) => {
     if (!ev.data) {
         return;
     }
     const data = (typeof ev.data === 'string' || ev.data instanceof String) ? JSON.parse(ev.data) : ev.data;
+    if (data.userscriptHtmlVersion !== htmlVersion && !versionMismatchAlerted) {
+        alert([
+            "YouTube Localhost Ad-Free Player: Version mismatch between userscript and localhost server",
+            `(userscript: ${htmlVersion}, server: ${data.userscriptHtmlVersion})`,
+            "Please download the latest index.html file from https://github.com/CyrilSLi/yt-localhost-iframe",
+        ].join("\n"));
+        versionMismatchAlerted = true;
+        open("https://github.com/CyrilSLi/yt-localhost-iframe");
+    }
     if (data.event == "infoDelivery") {
         resumeTime = Math.floor(data?.info?.currentTime || resumeTime);
         const playlist = data?.info?.playlist;
@@ -68,23 +84,25 @@ function run(container) {
 
     if (!document.getElementById("userscriptOnOffBtn")) {
         const ownerMetadata = document.querySelector("div#owner.ytd-watch-metadata");
-        ownerMetadata.style.marginRight = "0px";
-        ownerMetadata.appendChild(onOffBtn.cloneNode(true));
-        document.getElementById("userscriptOnOffBtn").addEventListener("click", () => {
-            enabled = !enabled;
-            document.getElementById("userscriptOnOffBtn").textContent = enabled ? "yt-iframe ON" : "yt-iframe OFF";
-            if (!enabled) {
-                [...document.getElementsByClassName(frameId)].forEach((el) => el.remove());
-                containerIds.forEach((id) => {
-                    const container = document.querySelector(id);
-                    if (container) {
-                        [...container.children].forEach((el) => {
-                            el.style.visibility = "";
-                        })
-                    }
-                });
-            }
-        });
+        if (ownerMetadata) {
+            ownerMetadata.style.marginRight = "0px";
+            ownerMetadata.appendChild(onOffBtn.cloneNode(true));
+            document.getElementById("userscriptOnOffBtn").addEventListener("click", () => {
+                enabled = !enabled;
+                document.getElementById("userscriptOnOffBtn").textContent = enabled ? "yt-iframe ON" : "yt-iframe OFF";
+                if (!enabled) {
+                    [...document.getElementsByClassName(frameId)].forEach((el) => el.remove());
+                    containerIds.forEach((id) => {
+                        const container = document.querySelector(id);
+                        if (container) {
+                            [...container.children].forEach((el) => {
+                                el.style.visibility = "";
+                            })
+                        }
+                    });
+                }
+            });
+        }
     }
 
     [...container.children].forEach((el) => {
