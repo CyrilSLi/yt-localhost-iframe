@@ -25,14 +25,29 @@
 <body>
     <iframe id="frame" frameborder="0" allow="autoplay; fullscreen;" allowfullscreen enablejsapi="1"></iframe>
     <script>
+        const params = new URLSearchParams(window.location.search);
         const frame = document.getElementById("frame");
-        frame.src = decodeURIComponent(new URLSearchParams(window.location.search).get("url")) || "https://example.com";
+        if (params.get("paused") === "1") {
+            frame.setAttribute("allow", frame.getAttribute("allow").replace("autoplay;", ""));
+        }
+        frame.src = decodeURIComponent(params.get("url")) || "https://example.com";
         const tag = document.createElement("script");
         tag.src = "https://www.youtube.com/iframe_api";
         const firstScriptTag = document.getElementsByTagName("script")[0];
         firstScriptTag.parentNode.insertBefore(tag, firstScriptTag);
         function onYouTubeIframeAPIReady() {
-            const player = new YT.Player("frame");
+            const player = new YT.Player("frame", {
+                events: {
+                    "onStateChange": (ev) => {
+                        if (ev.data == YT.PlayerState.PLAYING) {
+                            window.parent.postMessage({ event: "userscriptPlayEvent" }, "*");
+                        }
+                        if (ev.data == YT.PlayerState.PAUSED) {
+                            window.parent.postMessage({event: "userscriptPauseEvent" }, "*");
+                        }
+                    }
+                }
+            });
         }
         window.addEventListener("message", (ev) => {
             if (ev.data) {

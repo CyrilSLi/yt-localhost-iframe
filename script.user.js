@@ -10,7 +10,7 @@
 
 const frameId = "userscriptLocalhostFrame";
 const embedURL = "https://www.youtube-nocookie.com/embed/%v?playlist=%p&autoplay=1&start=%start&enablejsapi=1";
-const frameSrc = "http://localhost:8823?url=";
+const frameSrc = "http://localhost:8823?url=%url&paused=%paused";
 const containerIds = ["#player-container-inner", "#full-bleed-container", ".ytdMiniplayerPlayerContainerHost"];
 const runFreq = 200;
 
@@ -18,6 +18,7 @@ const urlParams = new URLSearchParams(window.location.search);
 let firstRunResume = parseInt((urlParams.get("t") || urlParams.get("start"))?.replace("s", "")) || 0;
 let resumeTime = firstRunResume, oldDataset = {};
 let enabled = true;
+let paused = false;
 
 window.addEventListener("message", (ev) => {
     if (!ev.data) {
@@ -48,6 +49,10 @@ window.addEventListener("message", (ev) => {
                 }
             }
         }
+    } else if (data.event == "userscriptPlayEvent") {
+        paused = false;
+    } else if (data.event == "userscriptPauseEvent") {
+        paused = true;
     }
 });
 
@@ -100,11 +105,11 @@ function run(container) {
     }
 
     function updateSrc() {
-        frame.src = frameSrc + encodeURIComponent(embedURL
+        frame.src = frameSrc.replace("%url", encodeURIComponent(embedURL
             .replace("%v", frame.dataset.videoId)
             .replace("%p", frame.dataset.playlist || frame.dataset.videoId)
             .replace("%start", resumeTime)
-        );
+        )).replace("%paused", paused ? "1" : "0");
     }
     function selectList() {
         [...document.querySelector("#items.playlist-items").children].forEach((el) => {
