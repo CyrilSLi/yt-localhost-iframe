@@ -2,7 +2,7 @@
 // @name        YouTube Localhost Ad-Free Player
 // @namespace   Violentmonkey Scripts
 // @match       *://www.youtube.com/*
-// @version     1.4.1
+// @version     1.4.2
 // @author      CyrilSLi
 // @description Play YouTube videos ad-free using an iframe embed served from localhost
 // @license     MIT
@@ -17,7 +17,7 @@ const embedURL = "https://www.youtube-nocookie.com/embed/%v?playlist=%p&autoplay
 const frameSrc = "http://localhost:8823?url=%url&paused=%paused";
 const containerIds = ["#player-container-inner", "#full-bleed-container", ".ytdMiniplayerPlayerContainerHost"];
 const runFreq = 200;
-const htmlVersion = "// @version 1.4.1".replace("// @version ", "").trim(); // Automatically replaced during build
+const htmlVersion = "// @version 1.4.2".replace("// @version ", "").trim(); // Automatically replaced during build
 
 const urlParams = new URLSearchParams(window.location.search);
 let firstRunResume = parseInt((urlParams.get("t") || urlParams.get("start"))?.replace("s", "")) || 0;
@@ -25,23 +25,29 @@ let resumeTime = firstRunResume
 let oldDataset = {};
 let enabled = true;
 let paused = false;
-let versionMismatchAlerted = false;
+let versionMismatchChecked = false;
 
 window.addEventListener("message", (ev) => {
     if (!ev.data) {
         return;
     }
     const data = (typeof ev.data === 'string' || ev.data instanceof String) ? JSON.parse(ev.data) : ev.data;
-    if (data.userscriptHtmlVersion !== htmlVersion && !versionMismatchAlerted) {
-        alert([
-            "YouTube Localhost Ad-Free Player: Version mismatch between userscript and localhost server",
-            `(userscript: ${htmlVersion}, server: ${data.userscriptHtmlVersion})`,
-            "Please update the userscript and server from",
-            "https://github.com/CyrilSLi/yt-localhost-iframe"
-        ].join("\n"));
-        versionMismatchAlerted = true;
-        open("https://github.com/CyrilSLi/yt-localhost-iframe");
+    if (!data.event) {
+        return;
     }
+    if (!versionMismatchChecked) {
+        versionMismatchChecked = true;
+        if (data.userscriptHtmlVersion.substring(0, data.userscriptHtmlVersion.lastIndexOf(".")) !== htmlVersion.substring(0, htmlVersion.lastIndexOf("."))) {
+            alert([
+                "YouTube Localhost Ad-Free Player: Version mismatch between userscript and localhost server",
+                `(userscript: ${htmlVersion}, server: ${data.userscriptHtmlVersion})`,
+                "Please update the userscript and server from",
+                "https://github.com/CyrilSLi/yt-localhost-iframe"
+            ].join("\n"));
+            open("https://github.com/CyrilSLi/yt-localhost-iframe");
+        }
+    }
+
     if (data.event == "infoDelivery") {
         resumeTime = Math.floor(data?.info?.currentTime || resumeTime);
         const playlist = data?.info?.playlist;
