@@ -2,7 +2,7 @@
 // @name        YouTube Localhost Ad-Free Player
 // @namespace   Violentmonkey Scripts
 // @match       *://www.youtube.com/*
-// @version     1.4.2
+// @version     1.4.3
 // @author      CyrilSLi
 // @description Play YouTube videos ad-free using an iframe embed served from localhost
 // @license     MIT
@@ -17,7 +17,7 @@ const embedURL = "https://www.youtube-nocookie.com/embed/%v?playlist=%p&autoplay
 const frameSrc = "http://localhost:8823?url=%url&paused=%paused";
 const containerIds = ["#player-container-inner", "#full-bleed-container", ".ytdMiniplayerPlayerContainerHost"];
 const runFreq = 200;
-const htmlVersion = "// @version 1.4.2".replace("// @version ", "").trim(); // Automatically replaced during build
+const htmlVersion = "// @version 1.4.3".replace("// @version ", "").trim(); // Automatically replaced during build
 
 const urlParams = new URLSearchParams(window.location.search);
 let firstRunResume = parseInt((urlParams.get("t") || urlParams.get("start"))?.replace("s", "")) || 0;
@@ -233,17 +233,16 @@ function run(container) {
             closeBtn.appendChild(path1);
             closeBtn.appendChild(path2);
             closeBtn.addEventListener("click", () => document.getElementsByClassName("ytp-miniplayer-close-button")[0].click());
-            infoBar.getElementsByClassName("ytdMiniplayerInfoBarExpand")[0].remove();
             infoBar.appendChild(closeBtn);
         }
     }
 
-    document.querySelectorAll("ytd-comment-thread-renderer a.yt-core-attributed-string__link:not([data-iframe-player])").forEach((el) => {
+    document.querySelectorAll("ytd-comment-thread-renderer a.yt-core-attributed-string__link:not([data-iframe-player]), #description-inline-expander a.yt-core-attributed-string__link:not([data-iframe-player])").forEach((el) => {
         const linkParams = new URLSearchParams(new URL(el.href, window.location).search);
         if (linkParams.get("v") === frame.dataset.videoId) {
             const timestamp = parseInt(linkParams.get("t")?.replace("s", ""));
             if (timestamp) {
-                el.addEventListener("click", (ev) => {
+                el.addEventListener("click", () => {
                     resumeTime = timestamp;
                     updateSrc();
                 });
