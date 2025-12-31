@@ -2,7 +2,7 @@
 // @name        YouTube Localhost Ad-Free Player
 // @namespace   Violentmonkey Scripts
 // @match       *://www.youtube.com/*
-// @version     1.4.3
+// @version     1.4.4
 // @author      CyrilSLi
 // @description Play YouTube videos ad-free using an iframe embed served from localhost
 // @license     MIT
@@ -17,7 +17,7 @@ const embedURL = "https://www.youtube-nocookie.com/embed/%v?playlist=%p&autoplay
 const frameSrc = "http://localhost:8823?url=%url&paused=%paused";
 const containerIds = ["#player-container-inner", "#full-bleed-container", ".ytdMiniplayerPlayerContainerHost"];
 const runFreq = 200;
-const htmlVersion = "// @version 1.4.3".replace("// @version ", "").trim(); // Automatically replaced during build
+const htmlVersion = "// @version 1.4.4".replace("// @version ", "").trim(); // Automatically replaced during build
 
 const urlParams = new URLSearchParams(window.location.search);
 let firstRunResume = parseInt((urlParams.get("t") || urlParams.get("start"))?.replace("s", "")) || 0;
@@ -233,6 +233,7 @@ function run(container) {
             closeBtn.appendChild(path1);
             closeBtn.appendChild(path2);
             closeBtn.addEventListener("click", () => document.getElementsByClassName("ytp-miniplayer-close-button")[0].click());
+            infoBar.getElementsByClassName("ytdMiniplayerInfoBarExpand")[0].remove();
             infoBar.appendChild(closeBtn);
         }
     }
