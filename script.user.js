@@ -237,7 +237,7 @@ function run(container) {
             closeBtn.appendChild(path1);
             closeBtn.appendChild(path2);
             closeBtn.addEventListener("click", () => document.getElementsByClassName("ytp-miniplayer-close-button")[0].click());
-            infoBar.getElementsByClassName("ytdMiniplayerInfoBarExpand")[0].remove();
+            infoBar.getElementsByClassName("ytdMiniplayerInfoBarExpand")[0]?.remove();
             infoBar.appendChild(closeBtn);
         }
     }
