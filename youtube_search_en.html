@@ -130,7 +130,10 @@
             if "load" not in document:
                 document ["results"].clear ()
                 search = document ["search"].value
-                if homepage:
+                if search [ : 6] == "ytpid:" and len (search) > 16 and len (search) % 12 == 5:
+                    search_id (True)
+                    return
+                elif homepage:
                     document ["enter"].textContent = "Settings"
                     document ["results"] <= html.H1 ("Homepage")
                     ajax.get ("https://www.youtube.com/?app=desktop&hl=en&persist_app=1", oncomplete = complete)
