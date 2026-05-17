@@ -242,7 +242,7 @@ function run(container) {
         }
     }
 
-    document.querySelectorAll("ytd-comment-thread-renderer a.yt-core-attributed-string__link:not([data-iframe-player]), #description-inline-expander a.yt-core-attributed-string__link:not([data-iframe-player])").forEach((el) => {
+    document.querySelectorAll("ytd-comment-thread-renderer a.ytAttributedStringLink:not([data-iframe-player]), #description-inline-expander a.ytAttributedStringLink:not([data-iframe-player])").forEach((el) => {
         const linkParams = new URLSearchParams(new URL(el.href, window.location).search);
         if (linkParams.get("v") === frame.dataset.videoId) {
             const timestamp = parseInt(linkParams.get("t")?.replace("s", ""));
