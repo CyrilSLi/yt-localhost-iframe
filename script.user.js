@@ -2,7 +2,7 @@
 // @name        YouTube Localhost Ad-Free Player
 // @namespace   Violentmonkey Scripts
 // @match       *://www.youtube.com/*
-// @version     1.4.6
+// @version     1.4.7
 // @author      CyrilSLi
 // @description Play YouTube videos ad-free using an iframe embed served from localhost
 // @license     MIT
@@ -21,7 +21,7 @@ const embedURL = "https://www.youtube-nocookie.com/embed/%v?playlist=%p&autoplay
 const frameSrc = "http://localhost:8823?url=%url&paused=%paused";
 const containerIds = ["#player-container-inner", "#full-bleed-container", ".ytdMiniplayerPlayerContainerHost"];
 const runFreq = 200;
-const htmlVersion = "// @version 1.4.6".replace("// @version ", "").trim(); // Automatically replaced during build
+const htmlVersion = "// @version 1.4.7".replace("// @version ", "").trim(); // Automatically replaced during build
 
 const urlParams = new URLSearchParams(window.location.search);
 let firstRunResume = parseInt((urlParams.get("t") || urlParams.get("start"))?.replace("s", "")) || 0;
@@ -85,7 +85,7 @@ window.addEventListener("message", (ev) => {
 
 const onOffBtn = document.createElement("button");
 onOffBtn.id = "userscriptOnOffBtn";
-onOffBtn.classList = "yt-spec-button-shape-next yt-spec-button-shape-next--tonal yt-spec-button-shape-next--mono yt-spec-button-shape-next--size-m";
+onOffBtn.classList = "ytSpecButtonShapeNextHost ytSpecButtonShapeNextTonal ytSpecButtonShapeNextMono ytSpecButtonShapeNextSizeM";
 onOffBtn.style.cssText = "margin: 0px 8px; min-width: min-content; max-width: min-content;";
 onOffBtn.textContent = "yt-iframe ON";
 
