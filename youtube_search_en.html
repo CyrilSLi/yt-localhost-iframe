@@ -5,6 +5,14 @@
     <meta charset = "utf-8">
     <script src = "https://cdn.jsdelivr.net/npm/brython@3.11.0/brython.min.js"></script>
     <script src = "https://cdn.jsdelivr.net/npm/brython@3.11.0/brython_stdlib.min.js"></script>
+    <script>
+        const socket = new WebSocket ("ws://localhost:9477");
+        socket.addEventListener("open", () => {
+            socket.close();
+            window._epoxyPolyfillServer = "ws://localhost:9477";
+        });
+        socket.addEventListener("error", () => socket.close());
+    </script>
     <script src = "https://cdn.jsdelivr.net/npm/epoxy-tls-polyfill@1/dist/brython.min.js"></script>
     <style>
         html, body {
