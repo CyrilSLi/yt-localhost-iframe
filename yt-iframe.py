@@ -8,7 +8,7 @@ def start_wisp_server():
     with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
         if s.connect_ex(("localhost", 9477)) == 0:
             return
-    sys.argv = ["--", "--port", "9477"]
+    sys.argv = ["--", "--port", "9477", "--threads", "1"]
     print("Starting wisp server on port 9477...")
     runpy.run_module("wisp.server", run_name = "__main__")
 threading.Thread(target=start_wisp_server).start()
